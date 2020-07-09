@@ -5,7 +5,7 @@ from models import todos
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "nininini"
 
-@app.route("/todos/", methods=["GET", "POST"])
+@app.route("/movlib/", methods=["GET", "POST"])
 def todos_list():
     form = TodoForm()
     error = ""
@@ -17,14 +17,14 @@ def todos_list():
 
     return render_template("todos.html", form=form, todos=todos.all(), error=error)
 
-@app.route("/api/v1/todos/<int:todo_id>", methods=["GET"])
+@app.route("/api/v1/movlib/<int:todo_id>", methods=["GET"])
 def get_todo(todo_id):
     todo = todos.get(todo_id)
     if not todo:
         abort(404)
     return jsonify({"todo": todo})
 
-@app.route("/api/v1/todos/", methods=["POST"])
+@app.route("/api/v1/movlib/", methods=["POST"])
 def create_todo():
     todo = {
         'id': todos.all()[-1]['id'] + 1,
@@ -37,18 +37,18 @@ def create_todo():
     todos.create(todo)
     return jsonify({'todo': todo}), 201
 
-@app.route("/api/v1/todos/<int:todo_id>", methods=['DELETE'])
+@app.route("/api/v1/movlib/<int:todo_id>", methods=['DELETE'])
 def delete_todo(todo_id):
     result = todos.delete(todo_id)
     if not result:
         abort(404)
     return jsonify({'result': result})
 
-@app.route("/api/v1/todos/", methods=["GET"])
+@app.route("/api/v1/movlib/", methods=["GET"])
 def todos_list_api_v1():
     return jsonify(todos.all())
 
-@app.route("/todos/<int:todo_id>/", methods=["GET", "POST"])
+@app.route("/movlib/<int:todo_id>/", methods=["GET", "POST"])
 def todo_details(todo_id):
     todo = todos.get(todo_id - 1)
     form = TodoForm(data=todo)
@@ -59,7 +59,7 @@ def todo_details(todo_id):
         return redirect(url_for("todos_list"))
     return render_template("todo.html", form=form, todo_id=todo_id)
 
-@app.route("/api/v1/todos/<int:todo_id>", methods=["PUT"])
+@app.route("/api/v1/movlib/<int:todo_id>", methods=["PUT"])
 def update_todo(todo_id):
     todo = todos.get(todo_id)
     if not todo:
