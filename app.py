@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for, jsonify, a
 from forms import TodoForm
 from models import todos
 
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "nininini"
 
