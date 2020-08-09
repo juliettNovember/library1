@@ -32,7 +32,7 @@
 </table>
 <div>
     <h2> Add new movie: </h2>
-    <form method="POST" action="/todos/">
+    <form method="POST" action="/projects/">
         {{ form.hidden_tag() }}
         <table>
             {% for field in form if field.widget.input_type != 'hidden' %}

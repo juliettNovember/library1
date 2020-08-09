@@ -11,6 +11,7 @@ class Projects:
     def __init__(self):
         self.conn = self.create_connection("database.db")
         self.create_project()
+        print("Polaczylo")
 
     def create_connection(self, db_file):
         """ create a database connection to the SQLite database
@@ -99,6 +100,5 @@ projects = Projects()
 
 if __name__ == "__main__":
     print(projects.all())
-
 
 

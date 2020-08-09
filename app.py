@@ -1,69 +1,66 @@
 from flask import Flask, request, render_template, redirect, url_for, jsonify, abort, make_response
 from forms import MovieForm
-from models import movies
+from models import projects
 
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "nininini"
 
 @app.route("/movlib/", methods=["GET", "POST"])
-def movies_list():
+def projects_list():
     form = MovieForm()
     error = ""
     if request.method == "POST":
         if form.validate_on_submit():
-            movies.create(form.data)
-            movies.save_all()
-        return redirect(url_for("movies_list"))
-
-    return render_template("movies.html", form=form, movies=movies.all(), error=error)
-
-@app.route("/api/v1/movlib/<int:movie_id>", methods=["GET"])
-def get_movie(movie_id):
-    todo = movies.get(movie_id)
-    if not movie:
+            projects.create(form.data)
+            # projects.save_all()
+        return redirect(url_for("projects_list"))
+    return render_template("movies.html", form=form, projects=projects.all(), error=error)
+@app.route("/api/v1/movlib/<int:project_id>", methods=["GET"]) 
+def get_project(project_id):
+    project = projects.get(project_id)
+    if not project:
         abort(404)
-    return jsonify({"movie": movie})
+    return jsonify({"project": project})
 
 @app.route("/api/v1/movlib/", methods=["POST"])
-def create_movie():
-    movie = {
-        'id': movies.all()[-1]['id'] + 1,
+def create_project():
+    project = {
+        'id': projects.all()[-1]['id'] + 1,
         'title': request.json['title'],
         'description': request.json['description'],
         'year': request.json['year'],
         'species': request.json['species'],
         'watch': False
     }
-    movies.create(movie)
-    return jsonify({'movie': movie}), 201
+    projects.create(project)
+    return jsonify({'project': project}), 201
 
-@app.route("/api/v1/movlib/<int:movie_id>", methods=['DELETE'])
-def delete_movie(movie_id):
-    result = movies.delete(movie_id)
+@app.route("/api/v1/movlib/<int:project_id>", methods=['DELETE'])
+def delete_project(project_id):
+    result = projects.delete(project_id)
     if not result:
         abort(404)
     return jsonify({'result': result})
 
 @app.route("/api/v1/movlib/", methods=["GET"])
-def movies_list_api_v1():
-    return jsonify(movies.all())
+def projects_list_api_v1():
+    return jsonify(projects.all())
 
-@app.route("/movlib/<int:todo_id>/", methods=["GET", "POST"])
-def movie_details(todo_id):
-    movie = movies.get(todo_id - 1)
-    form = MovieForm(data=movie)
-
+@app.route("/movlib/<int:project_id>/", methods=["GET", "POST"])
+def project_details(project_id):
+    project = projects.get(project_id - 1)
+    form = MovieForm(data=project)
     if request.method == "POST":
         if form.validate_on_submit():
-            todos.update(movie_id - 1, form.data)
-        return redirect(url_for("movies_list"))
-    return render_template("movies.html", form=form, movie_id=movie_id)
+            projects.update(tod_id - 1, form.data)
+        return redirect(url_for("projects_list"))
+    return render_template("project.html", form=form, project_id=project_id)
 
-@app.route("/api/v1/movlib/<int:movie_id>", methods=["PUT"])
-def update_movie(movie_id):
-    movie = movies.get(movie_id)
-    if not movie:
+@app.route("/api/v1/movlib/<int:project_id>", methods=["PUT"])
+def update_project(project_id):
+    project = projects.get(project_id)
+    if not project:
         abort(404)
     if not request.json:
         abort(400)
@@ -76,15 +73,15 @@ def update_movie(movie_id):
         'done' in data and not isinstance(data.get('done'), bool)
     ]):
         abort(400)
-    movie = {
-        'title': data.get('title', movie['title']),
-        'description': data.get('description', movie['description']),
-        'year': data.get('description', movie['year']),
-        'species': data.get('description', movie['species']),
-        'done': data.get('done', movie['done'])
+    project = {
+        'title': data.get('title', project['title']),
+        'description': data.get('description', project['description']),
+        'year': data.get('description', project['year']),
+        'species': data.get('description', project['species']),
+        'done': data.get('done', project['done'])
     }
-    movies.update(movie_id, movie)
-    return jsonify({'movie': movie})
+    projects.update(project_id, project)
+    return jsonify({'project': project})
 
 @app.errorhandler(404)
 def not_found(error):
