@@ -1,17 +1,16 @@
 import json
 import sqlite3
 from sqlite3 import Error
+from flask import g
 
 class DataBaseError(Exception):
     pass
 
 
-class Projects:
-
+class Movlib:
     def __init__(self):
-        self.conn = self.create_connection("database.db")
-        self.create_project()
-        print("Polaczylo")
+        self.conn = self.create_connection("movie_database.db")
+        self.create_movie_entry()
 
     def create_connection(self, db_file):
         """ create a database connection to the SQLite database
@@ -21,7 +20,8 @@ class Projects:
         """
         conn = None
         try:
-            conn = sqlite3.connect(db_file)
+            conn = sqlite3.connect(db_file, check_same_thread=False)
+            conn.row_factory = sqlite3.Row
             return conn
         except sqlite3.Error as e:
             print(e)
@@ -44,11 +44,11 @@ class Projects:
         except Error as e:
             raise DataBaseError(f"Akcja nie powiodła sie z powodu: {e}")
 
-    def create_project(self):
-        create_projects_sql = """
-        -- projects table
-        CREATE TABLE IF NOT EXISTS projects (
-        id integer PRIMARY KEY,
+    def create_movie_entry(self):
+        create_movlib_sql = """
+        -- movlib table
+        CREATE TABLE IF NOT EXISTS movlib (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         title text NOT NULL,
         description text,
         year integer,
@@ -57,48 +57,73 @@ class Projects:
         );
         """
 
-        self.execute_sql(create_projects_sql)
+        self.execute_sql(create_movlib_sql)
 
     def all(self):
-        sql = "SELECT * FROM projects"
-        projects = self.execute_sql(sql)
-        return projects.fetchall()
-
+        sql = "SELECT * FROM movlib"
+        movlib = self.execute_sql(sql)
+        return movlib.fetchall()
+        
     def details(self, id):
-        sql = "SELECT * FROM projects WHERE id = ?"
+        sql = "SELECT * FROM movlib WHERE id = ?"
         project = self.execute_sql(sql, (id,))
         return project.fetchone()
 
     def create(self, project):
-        sql = "INSERT INTO projects(id, title, description, year, species, watch) VALUES(?,?,?,?,?,?)"
+        
+        if 'csrf_token' in project: del project['csrf_token']
+        if project.get('watch') == True:
+            project['watch']="True"
+        else:
+            project['watch']="False"       
+        sql = "insert into movlib " + str(tuple(project.keys())) + " values " + str(tuple(project.values())) 
+        print(sql)
         try:
             self.execute_sql(sql, project)
+            self.execute_sql("insert into movlib ('id') values ('rowid')")
             return project
-
+    
         except DataBaseError as e:
             return [str(e)]
 
     def update(self, id, project):
         sql = """
-        UPDATE projects
+        UPDATE movlib
             SET title = ?,
                 description = ?,
                 year = ?,
                 species = ?,
-                watch = ?
+                watch = ?,
                 WHERE id = ?;"""
         data = project + (id, )
         cur = self.execute_sql(sql, data)
         return data
 
     def delete(self, id):
-        sql = "DELETE FROM projects WHERE id = ?"
+        print("id:", id)
+        #czasem pojawia sie blad "cannot start transaction in another transaction". dodanie tego commita w takiej sytuacji zakańcza otwartą tranzakcje.
+        try:
+            self.execute_sql("COMMIT")
+        except DataBaseError:
+            pass
+        
+        #ten kod tworzy na nowo tabele projects z poprawiona numeracja po usunieciu jednego z wierszy
+        self.execute_sql("BEGIN TRANSACTION")
+        sql = "DELETE FROM movlib WHERE id = ?"
         self.execute_sql(sql, (id, ))
+        self.execute_sql("CREATE TEMPORARY TABLE movlib_backup(title, description, year, species, watch)")    
+        self.execute_sql("INSERT INTO movlib_backup(title, description, year, species, watch) SELECT title, description, year, species, watch FROM movlib")
+        self.execute_sql("DROP TABLE movlib")
+        self.execute_sql("CREATE TABLE movlib(id INTEGER PRIMARY KEY, title text NOT NULL,description text,year integer,species text,watch text)")
+        self.execute_sql("INSERT INTO movlib(title, description, year, species, watch) SELECT title, description, year, species, watch FROM movlib_backup")
+        self.execute_sql("DROP TABLE movlib_backup")
+        self.execute_sql("COMMIT")
+        
         return True
 
-projects = Projects()
+movlib = Movlib()
 
 if __name__ == "__main__":
-    print(projects.all())
+    print(movlib.all())
 
 

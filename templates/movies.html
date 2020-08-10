@@ -14,25 +14,37 @@
 <table>
     <thead>
     
+    <th>Id</th>
     <th>Title</th>
     <th>Description</th>
     <th>Year</th>
     <th>Species</th>
     <th>Watch?</th>
+    <th>actions</th>
     </thead>
-{% for movie in movies %}
+{% for movie in movlib %}
     <tr>
+        <td>{{ movie.id }}</td>
         <td>{{ movie.title }}</td>
         <td>{{ movie.description }}</td>
         <td>{{ movie.year }}</td>
         <td>{{ movie.species }}</td> 
         <td>{{ movie.watch}}</td>
+        <!-- <td><button id = 'button{{movie.id}}' class="editbtn">delete</button></td> -->
+        <td>
+            <form method="POST">
+            <input id="deleteid" name="deleteid" type="hidden" value="{{movie.id}}">
+            <input type="submit" name=delbtn value=delete>
+        </form>
+        </td>
     </tr>
 {% endfor %}
 </table>
+
 <div>
     <h2> Add new movie: </h2>
-    <form method="POST" action="/projects/">
+    <!-- <form method="POST" action="/projects/"> -->
+        <form method="POST">
         {{ form.hidden_tag() }}
         <table>
             {% for field in form if field.widget.input_type != 'hidden' %}
