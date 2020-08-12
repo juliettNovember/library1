@@ -18,6 +18,18 @@ def movlib_list():
         return redirect(url_for("movlib_list"))
     return render_template("movies.html", form=form, movlib=movlib.all(), error=error)
 
+@app.route("/movlib/<int:id>", methods=["GET", "POST"])
+def update_project(id):
+    movie = movlib.details(id)
+    form = MovieForm(data=movie)
+    if request.method == "POST":
+        movlib.delete((request.form.get('deleteid')))
+        if form.validate_on_submit():    
+            movlib.create(form.data)  
+        return redirect(url_for("movlib_list"))
+    return render_template("movies.html", movie=movie, form=form)
+
+
 @app.route("/movlib/delete<int:project_id>", methods=['GET'])
 def delete_project(project_id):
     result = movlib.delete((project_id))
