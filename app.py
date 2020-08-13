@@ -6,36 +6,33 @@ from models import movlib
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "nininini"
 
-@app.route("/movlib/", methods=["GET", "POST"])
-def movlib_list():
+
+@app.route("/movies/", methods=["GET", "POST"])
+def movies_list():
     movlib.create_movie_entry()   
     form = MovieForm()
     error = ""
     if request.method == "POST":
-        movlib.delete((request.form.get('deleteid')))
         if form.validate_on_submit():    
             movlib.create(form.data)    
-        return redirect(url_for("movlib_list"))
+        return redirect(url_for("movies_list"))
     return render_template("movies.html", form=form, movlib=movlib.all(), error=error)
 
-@app.route("/movlib/<int:id>", methods=["GET", "POST"])
-def update_project(id):
+
+@app.route("/movies/<int:id>", methods=["GET", "POST"])
+def movie_details(id):
     movie = movlib.details(id)
     form = MovieForm(data=movie)
     if request.method == "POST":
-        movlib.delete((request.form.get('deleteid')))
         if form.validate_on_submit():    
             movlib.create(form.data)  
-        return redirect(url_for("movlib_list"))
+        return redirect(url_for("movies_list"))
     return render_template("movies.html", movie=movie, form=form)
 
-
-@app.route("/movlib/delete<int:project_id>", methods=['GET'])
-def delete_project(project_id):
-    result = movlib.delete((project_id))
-    if not result:
-        abort(404)
-    return redirect("/movlib/")
+@app.route("/movies/delete/<int:id>", methods=["GET"])
+def movie_delete(id):
+    result = movlib.delete((id))
+    return redirect("/movies/")
 
 @app.errorhandler(404)
 def not_found(error):
