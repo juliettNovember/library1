@@ -30,11 +30,10 @@
         <td>{{ movie.year }}</td>
         <td>{{ movie.species }}</td> 
         <td>{{ movie.watch}}</td>
-        <!-- <td><button id = 'button{{movie.id}}' class="editbtn">delete</button></td> -->
         <td>
-            <form method="POST">
-            <input id="deleteid" name="deleteid" type="hidden" value="{{movie.id}}">
-            <input type="submit" name=delbtn value=delete>
+                <form action="//localhost:5000/movies/delete/{{movie.id}}" method="GET">
+            <input type="submit" value=delete>
+            
         </form>
         </td>
     </tr>
@@ -43,7 +42,6 @@
 
 <div>
     <h2> Add new movie: </h2>
-    <!-- <form method="POST" action="/projects/"> -->
         <form method="POST">
         {{ form.hidden_tag() }}
         <table>

@@ -12,7 +12,7 @@ def movies_list():
     movlib.create_movie_entry()   
     form = MovieForm()
     error = ""
-    if request.method == "POST":
+    if request.method == "POST":       
         if form.validate_on_submit():    
             movlib.create(form.data)    
         return redirect(url_for("movies_list"))
@@ -25,8 +25,8 @@ def movie_details(id):
     form = MovieForm(data=movie)
     if request.method == "POST":
         if form.validate_on_submit():    
-            movlib.create(form.data)  
-        return redirect(url_for("movies_list"))
+            movlib.update(id, project)  
+        return redirect("/movies/")
     return render_template("movies.html", movie=movie, form=form)
 
 @app.route("/movies/delete/<int:id>", methods=["GET"])
