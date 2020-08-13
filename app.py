@@ -6,6 +6,9 @@ from models import movlib
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "nininini"
 
+@app.route("/", methods=["GET"])
+def redirections():
+    return redirect("/movies/")
 
 @app.route("/movies/", methods=["GET", "POST"])
 def movies_list():
@@ -24,10 +27,11 @@ def movie_details(id):
     movie = movlib.details(id)
     form = MovieForm(data=movie)
     if request.method == "POST":
-        if form.validate_on_submit():    
-            movlib.update(id, project)  
+        if form.validate_on_submit(): 
+            print(form)   
+            movlib.update(id, form.data)  
         return redirect("/movies/")
-    return render_template("movies.html", movie=movie, form=form)
+    return render_template("update.html", movie=movie, form=form)
 
 @app.route("/movies/delete/<int:id>", methods=["GET"])
 def movie_delete(id):

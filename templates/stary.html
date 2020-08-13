@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Movie library</title>
@@ -9,6 +8,7 @@
         table, th, tr, td {border: 1px solid black;}
     </style>
 </head>
+
 <h2>Movie library</h2>
 
 <table>
@@ -29,14 +29,10 @@
         <td>{{ movie.description }}</td>
         <td>{{ movie.year }}</td>
         <td>{{ movie.species }}</td> 
-        {% if movie.watch == '1' %}
-        <td>True</td>
-        {% else %}
-        <td>False</td>
-        {% endif %}
+        <td>{{ movie.watch}}</td>
         <td>
                 <form action="//localhost:5000/movies/delete/{{movie.id}}" method="GET">
-            <input type="submit" value=Delete>
+            <input type="submit" value=delete>
             
         </form>
         <form action="//localhost:5000/movies/{{movie.id}}" method="GET">
@@ -50,7 +46,7 @@
 </table>
 
 <div>
-    <h2> Add new movie: </h2>
+    <h2> {{Add new movie:}} </h2>
         <form method="POST">
         {{ form.hidden_tag() }}
         <table>
@@ -64,4 +60,5 @@
         <input type="submit" value="Go">
     </form>
 </div>
-{% endblock %}
+</body>
+</html>

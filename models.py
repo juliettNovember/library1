@@ -70,12 +70,7 @@ class Movlib:
         return project.fetchone()
 
     def create(self, project):
-        
         if 'csrf_token' in project: del project['csrf_token']
-        if project.get('watch') == True:
-            project['watch']="True"
-        else:
-            project['watch']="False"       
         sql = "insert into movlib " + str(tuple(project.keys())) + " values " + str(tuple(project.values())) 
         print(sql)
         try:
@@ -93,10 +88,12 @@ class Movlib:
                 description = ?,
                 year = ?,
                 species = ?,
-                watch = ?,
+                watch = ?
                 WHERE id = ?;"""
-        data = project + (id, )
-        cur = self.execute_sql(sql, data)
+       
+        data = project,id
+        data = project['title'],project['description'],project['year'],project['species'],project['watch'], id
+        self.execute_sql(sql, data)
         return data
 
     def delete(self, id):
@@ -120,6 +117,8 @@ class Movlib:
         self.execute_sql("COMMIT")
         
         return True
+
+
 
 movlib = Movlib()
 
